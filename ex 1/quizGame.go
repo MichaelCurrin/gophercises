@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -16,13 +17,15 @@ type Question struct {
 
 func main() {
 	var correctAnswers int = 0
-	fmt.Println("hello world")
-	questions := readcsv("./problems.csv")
+	var path *string = flag.String("path", "./problems.csv", "path")
+	var seconds *int = flag.Int("seconds", 10, "seconds")
+	flag.Parse()
+	questions := readcsv(*path)
 	defer result(&correctAnswers, len(questions))
-	fmt.Println("Press the Any Key to Start")
+	fmt.Println("Press the Enter Key to Start")
 	fmt.Scanln()
 	go askQuestions(&questions, &correctAnswers)
-	time.Sleep(10 * time.Second)
+	time.Sleep(time.Duration(*seconds) * time.Second)
 }
 
 func askQuestions(questions *[]Question, correctAnswers *int) {
@@ -42,6 +45,7 @@ func result(correctAnswers *int, quantityQuestions int) {
 func readcsv(path string) []Question {
 	var quests []Question
 	recordFile, err := os.Open(path)
+	defer recordFile.Close()
 	if err != nil {
 		fmt.Println("An error encounteres ::", err)
 	}
