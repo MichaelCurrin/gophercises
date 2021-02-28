@@ -1,7 +1,10 @@
 package urlshort
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/go-yaml/yaml"
 )
 
 // MapHandler will return an http.HandlerFunc (which also
@@ -11,15 +14,21 @@ import (
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-	//	TODO: Implement this...
-	mux := http.NewServerMux()
-	for k, v := range pathsToUrls {
-		mux.HandleFunc(k, func(w ResponseWriter, r *Request) {
-			http.redirect(w, r, v, http.StatusSeeOther)
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			url, ok := pathsToUrls[r.URL.Path]
+			if !ok {
+				fallback.ServeHTTP(w, r)
+			} else {
+				http.Redirect(w, r, url, http.StatusSeeOther)
+			}
 		})
-	}
-	mux.HandleFunc(fallback)
-	return mux
+}
+
+//T struct is for yaml parse
+type T struct {
+	path string `yaml:"path"`
+	url  string `yaml:"url"`
 }
 
 // YAMLHandler will parse the provided YAML and then return
@@ -39,6 +48,27 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
 func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	// TODO: Implement this...
-	return nil, nil
+	parsedYaml, err := parseYAML(yml)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(parsedYaml)
+	pathMap := buildMap(parsedYaml)
+	return MapHandler(pathMap, fallback), nil
+}
+
+func parseYAML(yml []byte) (out []T, err error) {
+	err = yaml.Unmarshal(yml, &out)
+	if err != nil {
+		fmt.Println("error")
+	}
+	return out, err
+}
+
+func buildMap(arr []T) map[string]string {
+	m := make(map[string]string)
+	for _, element := range arr {
+		m[element.path] = m[element.url]
+	}
+	return m
 }
