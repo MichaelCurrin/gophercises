@@ -104,6 +104,7 @@ Parametros de entrada
 |Nombre|Descripción|Obligatorio|
 | :- | :- | :- |
 |currency|moneda de la cual queremos obtener informacion|si|
+
 Parametros de salida
 |Nombre|Descripción|
 | :- | :- |
