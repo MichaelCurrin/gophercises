@@ -1,4 +1,4 @@
-# **Requerimiento Día 6
+# Requerimiento Día 6
 
 Dentro de esta carpeta "docs" se encuentra un archivo llamado `finalproject.postman_collection.json`, el mismo se puede importar desde postman. 
 
